@@ -1,13 +1,3 @@
-/* global firebase moment */
-// Steps to complete:
-
-// 1. Initialize Firebase
-// 2. Create button for adding new employees - then update the html + update the database
-// 3. Create a way to retrieve employees from the train database.
-// 4. Create a way to calculate the months worked. Using difference between start and current time.
-//    Then use moment.js formatting to set difference in months.
-// 5. Calculate Total billed
-
 // Initialize Firebase
   var config = {
     apiKey: "AIzaSyDdRTQRQkM4_xKiXBhhpb7DcgHCTEI9fpY",
@@ -49,7 +39,7 @@ $("#add-train-btn").on("click", function(event) {
   console.log(newTrain.frequency);
 
   // Alert
-  alert("train successfully added");
+  alert("Train successfully added");
 
   // Clears all of the text-boxes
   $("#train-name-input").val("");
@@ -75,43 +65,32 @@ database.ref().on("child_added", function(childSnapshot, prevChildKey) {
   console.log(trainStart);
   console.log(trainFrequency);
 
-  // Prettify the train start
-  var trainStartPretty = moment.unix(trainStart).format("hh:mm");
-
-  // Calculate the months worked using hardcore math
-  // To calculate the next train arrival
-  /*var nextArrival = moment().diff(moment.unix(trainStart, "X"), "minutes");
-  console.log(nextArrival);
-
-  // Calculate minutes until next train arrival
-  var minutesAway = empMonths * trainFrequency;
-  console.log(minutesAway);*/
 //-----------------------------------------------------------------------
-  // First Time (pushed back 1 year to make sure it comes before current time)
-    var firstTimeConverted = moment(trainStartPretty, "hh:mm").subtract(1, "years");
-    console.log(firstTimeConverted);
+  // First Train Time (pushed back 1 year to make sure it comes before current time)
+    var firstTrainConverted = moment.unix(trainStart).subtract(1, "years");
+    console.log(firstTrainConverted);
 
     // Current Time
     var currentTime = moment();
     console.log("CURRENT TIME: " + moment(currentTime).format("hh:mm"));
 
-    // Difference between the times
-    var diffTime = moment().diff(moment(firstTimeConverted), "minutes");
+    // Difference between current time and first train time
+    var diffTime = moment().diff(moment(firstTrainConverted), "minutes");
     console.log("DIFFERENCE IN TIME: " + diffTime);
 
-    // Time apart (remainder)
+    //  remainder of time difference
     var tRemainder = diffTime % trainFrequency;
     console.log(tRemainder);
 
-    // Minute Until Train
+    // Minutes left until next train
     var tMinutesTillTrain = trainFrequency - tRemainder;
     console.log("MINUTES TILL TRAIN: " + tMinutesTillTrain);
 
-    // Next Train
+    // Next train arrival time
     var nextTrain = moment().add(tMinutesTillTrain, "minutes");
     console.log("ARRIVAL TIME: " + moment(nextTrain).format("hh:mm"));
 //--------------------------------------------------------------------------
   // Add each train's data into the table
   $("#train-table > tbody").append("<tr><td>" + trainName + "</td><td>" + trainDestination + "</td><td>" +
-  firstTimeConverted + "</td><td>" + trainFrequency + "</td><td>" + nextTrain + "</td><td>" + tMinutesTillTrain + "</td></tr>");
+  moment.unix(firstTrainConverted).format("hh:mm") + "</td><td>" + trainFrequency + "</td><td>" + moment.unix(nextTrain).format("hh:mm") + "</td><td>" + tMinutesTillTrain + "</td></tr>");
 });
